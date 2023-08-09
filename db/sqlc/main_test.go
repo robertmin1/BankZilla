@@ -15,11 +15,16 @@ var testDB *sql.DB
 
 const (
 	driverName = "postgres"
-	dataSourceName = "postgresql://root:roba@localhost:5432/simple_bank?sslmode=disable"
 )
 
 func TestMain(m *testing.M)  {
 	var err error
+
+	// Read the POSTGRES_PASSWORD environment variable
+    	postgresPassword := os.Getenv("POSTGRES_PASSWORD")
+
+    	// Construct the dataSourceName
+   	dataSourceName := "postgresql://root:" + postgresPassword + "@localhost:5432/simple_bank?sslmode=disable"
 
 	testDB, err = sql.Open(driverName, dataSourceName)
 	if err != nil {
