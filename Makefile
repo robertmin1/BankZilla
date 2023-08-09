@@ -1,4 +1,4 @@
-export POSTGRES_PASSWORD := $(shell echo $$POSTGRES_P)
+export POSTGRES_PASSWORD := ${{ secrets.POSTGRES_P }}
 
 postgres:
 	docker run --name postgres -p 5432:5432 -e POSTGRES_USER=root -d postgres:12-alpine
