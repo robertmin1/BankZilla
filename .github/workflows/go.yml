@@ -48,3 +48,5 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+      env:
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_P }}
