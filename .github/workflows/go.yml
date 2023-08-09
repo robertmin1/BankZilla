@@ -19,7 +19,7 @@ jobs:
         image: postgres:12
         env:
           POSTGRES_USER: root
-          POSTGRES_PASSWORD: roba
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_P }}
           POSTGRES_DB: simple_bank
         ports:
           - 5432:5432
@@ -31,7 +31,7 @@ jobs:
           
     steps:
     - uses: actions/checkout@v3
-
+    
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
