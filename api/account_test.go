@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -349,6 +351,84 @@ func TestUpdateAccountAPI(t *testing.T) {
 			recorder := httptest.NewRecorder()
 
 			request, err := http.NewRequest(http.MethodPut, "/accounts/update", construstJson(t, tc.requestupdate))
+			require.NoError(t, err)
+			server.router.ServeHTTP(recorder, request)
+			tc.checkReponse(t, recorder)
+		})
+	}
+}
+
+func TestListAccountsAPI(t *testing.T) {
+	requestlistparmas := listAccountRequest{
+		PageID:      1,
+		PageSize: 5,
+	}
+
+	testcases := []struct {
+		name          string
+		requestlist   listAccountRequest
+		buildStubs    func(store *mockdb.MockStore)
+		checkReponse  func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:          "OK",
+			requestlist: requestlistparmas,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return([]db.Account{}, nil)
+			},
+			checkReponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name:          "Invalid Parameters",
+			requestlist: listAccountRequest{PageID: 0, PageSize: 0},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkReponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:          "Internal Server Error",
+			requestlist: requestlistparmas,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return([]db.Account{},sql.ErrConnDone)
+			},
+			checkReponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testcases {
+		tc := testcases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mockdb.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := NewSever(store)
+			recorder := httptest.NewRecorder()
+			
+			params := url.Values{}
+			params.Add("page_id",strconv.Itoa(int(tc.requestlist.PageID)))
+			params.Add("page_size",strconv.Itoa(int(tc.requestlist.PageSize)))
+
+			url := "/accounts?" + params.Encode()
+			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 			server.router.ServeHTTP(recorder, request)
 			tc.checkReponse(t, recorder)

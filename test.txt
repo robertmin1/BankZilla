@@ -1,0 +1,27 @@
+		{
+			name:          "Invalid Parameters",
+			updateAccount: updateAccountparams,
+			requestupdate: updateAccountRequest{},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					UpdateAccount(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			checkReponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:          "Internal Server Error",
+			updateAccount: updateAccountparams,
+			requestupdate: requestupdateparmas,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					UpdateAccount(gomock.Any(), gomock.Eq(updateAccountparams)).
+					Times(1).
+					Return(db.Account{},sql.ErrConnDone)
+			},
+			checkReponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
