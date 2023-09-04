@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	db "github.com/techschool/simplebank/db/sqlc"
 )
 
@@ -29,6 +30,13 @@ func (server *Server) createAccount(ctx *gin.Context) {
 
 	account, err := server.store.CreateAccount(ctx, arg)
 	if err != nil {
+		if pqError, ok := err.(*pq.Error); ok {
+			switch pqError.Code.Name(){
+				case "unique_violation", "foreign_key_violation":
+					ctx.JSON(http.StatusForbidden, errorReponse(err))
+					return
+			}		
+		}
 		ctx.JSON(http.StatusInternalServerError, errorReponse(err))
 		return
 	}
