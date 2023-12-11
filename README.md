@@ -1,6 +1,4 @@
-# BankZilla
-
-## Backend Web Service
+# BankZilla (Backend Web Service)
 
 ## Project Overview
 
