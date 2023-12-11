@@ -3,9 +3,9 @@
 ## Project Overview
 
 ### Features:
-Create and manage bank accounts with owner's name, balance, and currency.
-Record all balance changes, generating entry records for each transaction.
-Perform secure money transfers between two accounts, ensuring transactional consistency.
+- Create and manage bank accounts with owner's name, balance, and currency.
+- Record all balance changes, generating entry records for each transaction.
+- Perform secure money transfers between two accounts, ensuring transactional consistency.
 
 ## Key Highlights
 ## Database Design and Management
