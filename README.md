@@ -1,6 +1,6 @@
 # BankZilla (Simple Bank Backend Service)
 
-## Project Overview
+## Project Overview (On-going project)
 
 ### Features:
 - Create and manage bank accounts with owner's name, balance, and currency.
